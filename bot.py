@@ -32,6 +32,7 @@ def start_handler(message):
     string = f"hello {message.from_user.first_name.lower()}:)"
     string += "\n/view -> view all expenses for this month"
     string += "\n/add -> add an expense for the day"
+    string += "\n/delete -> delete the last added expense"
     bot.reply_to(message, string)
 
 @bot.message_handler(commands=['add'])
@@ -95,6 +96,17 @@ def view_handler(message):
     string += df_string
     bot.send_message(chat_id=message.chat.id, text=string) 
     bot.send_message(chat_id=message.chat.id, text="your current total expenses for this month is: $" + str(total))
+
+@bot.message_handler(commands=['delete'])
+def delete_handler(message):
+    # delete the last added expense
+    bot.send_message(chat_id=message.chat.id, text="ok, i'll delete your last added expense.")
+    expenses_df = pd.read_csv(f"{datetime.today().month}-{datetime.today().year}_expenses.csv", header=None, index_col=0)
+    expenses_df = expenses_df.iloc[:-1]
+    print(expenses_df)
+    expenses_df.to_csv(f"{datetime.today().month}-{datetime.today().year}_expenses.csv", header=None)
+    bot.send_message(chat_id=message.chat.id,
+                     text="^^ your last added expense has been successfully deleted.")
 
 def daily_reminder():
     bot.send_message(chat_id=CHAT_ID, text="hey xinran, type /add to track your expenses for today:)")
