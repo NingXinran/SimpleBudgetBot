@@ -87,7 +87,11 @@ def final_handler(message):
 @bot.message_handler(commands=['view'])
 def view_handler(message):
     # open the file as pandas dataframe
-    expenses_df = pd.read_csv(f"{datetime.today().month}-{datetime.today().year}_expenses.csv", header=None, index_col=0)
+    try:
+        expenses_df = pd.read_csv(f"{datetime.today().month}-{datetime.today().year}_expenses.csv", header=None, index_col=0)
+    except pd.errors.EmptyDataError as e:
+        bot.send_message(chat_id=message.chat.id, text="you have no expenses for this month yet!")
+        return
     total = get_total_expenses() 
     string = "your list of expenses:\n"
     string += "date/meals/drinks/misc\n"
